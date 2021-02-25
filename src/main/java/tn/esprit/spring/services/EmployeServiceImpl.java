@@ -1,9 +1,10 @@
 package tn.esprit.spring.services;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import tn.esprit.spring.repository.TimesheetRepository;
 
 @Service
 public class EmployeServiceImpl implements IEmployeService {
+	private static final Logger logger = Logger.getLogger(EmployeServiceImpl.class);
 
 	@Autowired
 	EmployeRepository employeRepository;
@@ -38,35 +40,53 @@ public class EmployeServiceImpl implements IEmployeService {
 
 	@Override
 	public int addOrUpdateEmploye(Employe employe) {
-		employeRepository.save(employe);
-		return employe.getId();
+		int empID = -1;
+		try {
+			employeRepository.save(employe);
+			empID = employe.getId();
+		} catch (IllegalArgumentException e) {
+			logger.error(e);
+		}
+		return empID;
 	}
-
 
 	public void mettreAjourEmailByEmployeId(String email, int employeId) {
-		Employe employe = employeRepository.findById(employeId).get();
-		employe.setEmail(email);
-		employeRepository.save(employe);
+		try {
+			Optional<Employe> employeDB = employeRepository.findById(employeId);
+			if (employeDB.isPresent()) {
+				employeDB.get().setEmail(email);
+				employeRepository.save(employeDB.get());
+			}
+		} catch (IllegalArgumentException e) {
+			logger.error(e);
+		}
 
 	}
 
-		
-	public void affecterEmployeADepartement(int employeId, int depId) { 
-		Departement d = deptRepoistory.findById(depId).get();
-		Employe e = employeRepository.findById(employeId).get();
-		// Employe et le fils (contient le mappedBy) donc : 
-		d.getEmployes().add(e);
+	public void affecterEmployeADepartement(int employeId, int depId) {
+		try {
+			Optional<Departement> departDB = deptRepoistory.findById(depId);
+			Optional<Employe> employeDB = employeRepository.findById(employeId);
+
+			if (departDB.isPresent() && employeDB.isPresent()) {
+				// Employe et le fils (contient le mappedBy) donc :
+				departDB.get().getEmployes().add(employeDB.get());
+			}
+		} catch (IllegalArgumentException e) {
+			logger.error(e);
+		}
 	}
-	
+
 	@Transactional
-	public void desaffecterEmployeDuDepartement(int employeId, int depId)
-	{
-		Departement dep = deptRepoistory.findById(depId).get();
-		Employe empl = employeRepository.findById(employeId).get();
-		
-		dep.getEmployes().remove(empl);
-		
+	public void desaffecterEmployeDuDepartement(int employeId, int depId) {
+		try {
+			Departement dep = deptRepoistory.findById(depId).get();
+			Employe empl = employeRepository.findById(employeId).get();
 
+			dep.getEmployes().remove(empl);
+		} catch (IllegalArgumentException e) {
+			logger.error(e);
+		}
 //		int employeNb = dep.getEmployes().size();
 //		for(int index = 0; index < employeNb; index++){
 //			if(dep.getEmployes().get(index).getId() == employeId){
@@ -74,10 +94,10 @@ public class EmployeServiceImpl implements IEmployeService {
 //				break;//a revoir
 //			}
 //		}
-		
-	} 
-	
-	// Tablesapce (espace disque) 
+
+	}
+
+	// Tablesapce (espace disque)
 
 	public int ajouterContrat(Contrat contrat) {
 		contratRepoistory.save(contrat);
@@ -85,13 +105,16 @@ public class EmployeServiceImpl implements IEmployeService {
 	}
 
 	public void affecterContratAEmploye(int contratId, int employeId) {
-		Contrat contratManagedEntity = contratRepoistory.findById(contratId).get();
-		Employe employeManagedEntity = employeRepository.findById(employeId).get();
+		try {
+			Optional<Contrat> contratDB = contratRepoistory.findById(contratId);
+			Optional<Employe> employeDB = employeRepository.findById(employeId);
+			if (contratDB.isPresent() && employeDB.isPresent()) {
 
-		contratManagedEntity.setEmploye(employeManagedEntity);
-
-		// faux: 
-		//employeManagedEntity.setContrat(contratManagedEntity);
+				contratDB.get().setEmploye(employeDB.get());
+			}
+		} catch (IllegalArgumentException e) {
+			logger.error(e);
+		}
 
 	}
 
@@ -99,19 +122,22 @@ public class EmployeServiceImpl implements IEmployeService {
 		Employe employeManagedEntity = employeRepository.findById(employeId).get();
 		return employeManagedEntity.getPrenom();
 	}
-	 
-	public void deleteEmployeById(int employeId)
-	{
-		Employe employe = employeRepository.findById(employeId).get();
 
-		//Desaffecter l'employe de tous les departements
-		//c'est le bout master qui permet de mettre a jour
-		//la table d'association
-		for(Departement dep : employe.getDepartements()){
-			dep.getEmployes().remove(employe);
+	public void deleteEmployeById(int employeId) {
+		try {
+			Employe employe = employeRepository.findById(employeId).get();
+
+			// Desaffecter l'employe de tous les departements
+			// c'est le bout master qui permet de mettre a jour
+			// la table d'association
+			for (Departement dep : employe.getDepartements()) {
+				dep.getEmployes().remove(employe);
+			}
+
+			employeRepository.delete(employe);
+		} catch (IllegalArgumentException e) {
+			logger.error(e);
 		}
-
-		employeRepository.delete(employe);
 	}
 
 	public void deleteContratById(int contratId) {
@@ -137,6 +163,7 @@ public class EmployeServiceImpl implements IEmployeService {
 		employeRepository.mettreAjourEmailByEmployeIdJPQL(email, employeId);
 
 	}
+
 	public void deleteAllContratJPQL() {
 		employeRepository.deleteAllContratJPQL();
 	}
