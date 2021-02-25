@@ -4,6 +4,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
@@ -71,13 +73,12 @@ public class DepartmentServiceTest {
 	}
 	
 	@Test
-	void testDeleteDepartment() throws Exception {
-		l.info("starting test delete department");
-		 deptService.deletetDepartementById(3);
-		Departement dept = deptService.getDepartementById(3);
-		assertNull(dept);
-		
-		l.info("finished test delete department");
+	void testFindAllDepartment() throws Exception {
+		l.info("starting test get all department");
+		// deptService.deletetDepartementById(3);
+		List<Departement> dept = deptService.getAllDepartements();
+		assertEquals(true, dept.size()>0);
+		l.info("finished test get all department");
 	}
 
 }
