@@ -13,55 +13,6 @@ import tn.esprit.spring.entities.Employe;
 import tn.esprit.spring.entities.Entreprise;
 
 @Repository
-public interface EmployeRepository extends CrudRepository<Employe, Integer>  {
-	
-	//@Query("SELECT e FROM Employe e WHERE e.email=:email and e.password=:password")
-	public Employe getEmployeByEmailAndPassword(String login, String password);
-	
-	
-	
-	
-	@Query("SELECT count(*) FROM Employe")
-    public int countemp();
-	
-    @Query("SELECT nom FROM Employe")
-    public List<String> employeNames();
-    
-//    @Query("Select "
-//			+ "DISTINCT emp from Employe emp "
-//			+ "join emp.departements dps "
-//			+ "join dps.entreprise entrep "
-//			+ "where entrep=:entreprise")
-    @Query("Select "
-			+ "DISTINCT emp from Employe emp "
-			+ "join emp.departements dps "
-			+ "where deps.entreprise=:entreprise")
-    // à tester avec l'id :  deps.entreprise.id:=id 
-    public List<Employe> getAllEmployeByEntreprisec(@Param("entreprise") Entreprise entreprise);
-    
-    @Modifying
-    @Transactional
-    @Query("UPDATE Employe e SET e.email=:email1 where e.id=:employeId")
-    public void mettreAjourEmailByEmployeIdJPQL(@Param("email1")String email, @Param("employeId")int employeId);
-
-    
-    @Modifying
-    @Transactional
-    @Query("DELETE from Contrat")
-    public void deleteAllContratJPQL();
-    
-    @Query("select c.salaire from Contrat c join c.employe e where e.id=:employeId")
-    public float getSalaireByEmployeIdJPQL(@Param("employeId")int employeId);
-    
-    
-    @Query("Select "
-			+ "DISTINCT AVG(cont.salaire) from Contrat cont "
-			+ "join cont.employe emp "
-			+ "join emp.departements deps "
-			+ "where deps.id=:depId")
-    public Double getSalaireMoyenByDepartementId(@Param("depId")int departementId);
-	
-    		
-   
+public interface EmployeRepository extends CrudRepository<Employe, Integer> {
 
 }
