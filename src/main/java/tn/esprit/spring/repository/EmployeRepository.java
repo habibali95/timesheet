@@ -35,7 +35,7 @@ public interface EmployeRepository extends CrudRepository<Employe, Integer>  {
     @Query("Select "
 			+ "DISTINCT emp from Employe emp "
 			+ "join emp.departements dps "
-			+ "where deps.entreprise=:entreprise")
+			+ "where dps.entreprise=:entreprise")
     // à tester avec l'id :  deps.entreprise.id:=id 
     public List<Employe> getAllEmployeByEntreprisec(@Param("entreprise") Entreprise entreprise);
     
