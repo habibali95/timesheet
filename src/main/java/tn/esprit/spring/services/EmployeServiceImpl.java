@@ -88,9 +88,6 @@ public class EmployeServiceImpl implements IEmployeService {
 				logger.error("ID does not Exist");
 				throw new IllegalArgumentException("ID does not Exist");
 			}
-			for (Departement dep : employe.get().getDepartements()) {
-				dep.getEmployes().remove(employe.get());
-			}
 
 			employeRepository.delete(employe.get());
 		} catch (IllegalArgumentException e) {
