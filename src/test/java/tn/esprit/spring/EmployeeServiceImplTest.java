@@ -1,6 +1,7 @@
 package tn.esprit.spring;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import javax.inject.Inject;
 
@@ -38,17 +39,16 @@ public class EmployeeServiceImplTest {
 		String email = "jubran@hotmail.com";
 		int employeId = 2;
 		employeeService.mettreAjourEmailByEmployeId(email, employeId);
-		assertTrue(employeeService.getAllEmployes().stream().filter(e -> e.getId() == employeId)
-				.anyMatch(c -> c.getEmail().equals(email)));
+		assertEquals(employeeService.findByID(2).getEmail(), email);
 		logger.info("End Test  method mettreAjourEmailByEmployeId");
 	}
 
 	@Test
-	public void testDeleteEmployeById() {
+	public void testDeleteEmployeById() {		
 		logger.info("Start Test  method deleteEmployeById");
 		int employeId = 3;
 		employeeService.deleteEmployeById(employeId);
-		assertTrue(employeeService.findByID(3) == null);
+		assertEquals(employeeService.findByID(3), null);
 		logger.info("End Test  method deleteEmployeById");
 
 	}
