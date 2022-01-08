@@ -1,0 +1,21 @@
+version: "3.7"
+services:
+  timesheet:
+    image: timesheet:1
+    ports:
+      - 8099:8099
+    depends_on:
+      db_core:
+        condition: service_healthy
+  db_core:
+    image: "mysql:5.7"
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: core
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
