@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   timesheet:
-    image: timesheet:1
+    image: habibali95/timesheet:1
     ports:
       - 8099:8099
     depends_on:
